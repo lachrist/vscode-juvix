@@ -197,10 +197,7 @@ export class JuvixConfig {
   public getCompilationFlags(): string {
     const target = this.compilationTarget.get();
     const flags = [];
-    if (target) {
-      flags.push('--target');
-      flags.push(target);
-    }
+    flags.push(target);
     const outputFile = this.compilationOutput.get();
     if (outputFile) {
       flags.push('--output');
