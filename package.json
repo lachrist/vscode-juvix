@@ -1,6 +1,6 @@
 {
   "name": "juvix-mode",
-  "version": "0.1.50",
+  "version": "0.1.51",
   "license": "GPL-3.0",
   "description": "Juvix Mode for VSCode",
   "displayName": "Juvix",
@@ -897,7 +897,7 @@
           "type": "string",
           "default": "juvix",
           "scope": "machine-overridable",
-          "description": "Name of the executable of Juvix. (e.g. juvix-v0.3.0)"
+          "description": "Name of the executable of Juvix. (e.g. juvix-v0.6.0)"
         },
         "juvix-mode.juvixBinPath": {
           "type": "string",

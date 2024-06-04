@@ -1,4 +1,2 @@
 module A;
-open import B;
-axiom a : B;
-end;
+

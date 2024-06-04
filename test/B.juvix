@@ -1,6 +1,0 @@
-module B;
-
-axiom B : Type;
-
-
-end;

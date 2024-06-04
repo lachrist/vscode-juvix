@@ -1,7 +1,0 @@
-module HelloWorld;
-
-import Stdlib.Prelude open;
-
---- Hello world program
-main : IO;
-main := printStringLn "Hello world!";
