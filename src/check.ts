@@ -25,8 +25,8 @@ export async function activate(context: vscode.ExtensionContext) {
         const typecheckerCall = [
           config.getJuvixExec(),
           config.getGlobalFlags(),
-          '--only-errors',
           'typecheck',
+          config.getTypeckeckFlags(),
           filePath,
         ].join(' ');
 
@@ -43,10 +43,11 @@ export async function activate(context: vscode.ExtensionContext) {
         return ls.stdout;
       }
     }
+    return '';
   };
 
   context.subscriptions.push(
-    vscode.commands.registerCommand(command, commandHandler)
+    vscode.commands.registerCommand(command, commandHandler),
   );
 
   switch (config.typecheckOn.get()) {
@@ -59,9 +60,9 @@ export async function activate(context: vscode.ExtensionContext) {
             vscode.commands.executeCommand(
               'juvix-mode.typecheck-silent',
               doc,
-              doc.getText()
+              doc.getText(),
             );
-        })
+        }),
       );
       break;
     case 'save':
@@ -72,9 +73,9 @@ export async function activate(context: vscode.ExtensionContext) {
             vscode.commands.executeCommand(
               'juvix-mode.typecheck-silent',
               doc,
-              doc.getText()
+              doc.getText(),
             );
-        })
+        }),
       );
       break;
     default:

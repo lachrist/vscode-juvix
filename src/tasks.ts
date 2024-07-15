@@ -27,7 +27,7 @@ export async function activate(context: vscode.ExtensionContext) {
   const provider = new JuvixTaskProvider();
   const juvixTasks: Promise<vscode.Task[]> = provider.provideTasks();
   context.subscriptions.push(
-    vscode.tasks.registerTaskProvider(TASK_TYPE, provider)
+    vscode.tasks.registerTaskProvider(TASK_TYPE, provider),
   );
 
   juvixTasks
@@ -44,7 +44,7 @@ export async function activate(context: vscode.ExtensionContext) {
               return true;
             });
             return false;
-          }
+          },
         );
         context.subscriptions.push(cmd);
       }
@@ -72,7 +72,7 @@ export class JuvixTaskProvider implements vscode.TaskProvider {
       },
       {
         command: 'typecheck',
-        args: ['${file}'],
+        args: [config.getTypeckeckFlags(), '${file}'],
         group: vscode.TaskGroup.Build,
         reveal: vscode.TaskRevealKind.Always,
       },
@@ -131,7 +131,25 @@ export class JuvixTaskProvider implements vscode.TaskProvider {
         reveal: vscode.TaskRevealKind.Silent,
       },
       {
-        command: 'dev parse',
+        command: 'dev-parse',
+        args: ['${file}'],
+        group: vscode.TaskGroup.Build,
+        reveal: vscode.TaskRevealKind.Always,
+      },
+      {
+        command: 'clean',
+        args: [config.getCleanFlags()],
+        group: vscode.TaskGroup.Build, // could it be Clean?
+        reveal: vscode.TaskRevealKind.Always,
+      },
+      {
+        command: 'update-dependencies',
+        args: [],
+        group: vscode.TaskGroup.Build,
+        reveal: vscode.TaskRevealKind.Always,
+      },
+      {
+        command: 'isabelle',
         args: ['${file}'],
         group: vscode.TaskGroup.Build,
         reveal: vscode.TaskRevealKind.Always,
@@ -144,7 +162,7 @@ export class JuvixTaskProvider implements vscode.TaskProvider {
       const vscodeTask = await JuvixTask(
         { type: TASK_TYPE, command: def.command }, // definition
         def.command, // name
-        [def.command].concat(def.args ?? []) // args
+        [def.command].concat(def.args ?? []), // args
       );
       vscodeTask.group = def.group;
       vscodeTask.problemMatchers = ['$juvixerror'];
@@ -177,7 +195,7 @@ export class JuvixTaskProvider implements vscode.TaskProvider {
 export async function JuvixTask(
   definition: JuvixTaskDefinition,
   name: string,
-  args: string[]
+  args: string[],
 ): Promise<vscode.Task> {
   const input = args.join(' ').trim();
   const config = new user.JuvixConfig();
@@ -189,29 +207,33 @@ export async function JuvixTask(
     case 'run':
       exec = new vscode.ShellExecution(
         JuvixExec +
-          ` compile native --output ${buildDir}\${pathSeparator}out ${fl} && ${buildDir}\${pathSeparator}out`,
-        { cwd: buildDir }
+        ` compile native --output ${buildDir}\${pathSeparator}out ${fl} && ${buildDir}\${pathSeparator}out`,
+        { cwd: buildDir },
       );
       break;
     case 'core-compile':
       exec = new vscode.ShellExecution(
-        JuvixExec + ` dev core compile -t geb ${fl}`
+        JuvixExec + ` dev core compile -t geb ${fl}`,
       );
       break;
     case 'core-eval':
       exec = new vscode.ShellExecution(JuvixExec + ` dev core eval ${fl}`);
       break;
-    case 'geb-compile':
+    case 'geb-compile': {
       const gebCompile =
         config.getGebExec() +
         ` -i ${fl}.lisp -e "${fl}::*entry*" -l -v -o ${fl}.pir`;
       exec = new vscode.ShellExecution(gebCompile);
       break;
+    }
     case 'geb-eval':
       exec = new vscode.ShellExecution(JuvixExec + ` dev geb eval ${fl}`);
       break;
     case 'geb-check':
       exec = new vscode.ShellExecution(JuvixExec + ` dev geb check ${fl}`);
+      break;
+    case 'update-dependencies':
+      exec = new vscode.ShellExecution(JuvixExec + `dependencies update`);
       break;
     default:
       exec = new vscode.ShellExecution(JuvixExec + `  ${input}`);
@@ -223,6 +245,6 @@ export async function JuvixTask(
     name,
     TASK_TYPE,
     exec,
-    ['$juvixerror']
+    ['$juvixerror'],
   );
 }

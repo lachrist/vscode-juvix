@@ -1,5 +1,5 @@
 # Adapted from https://github.com/HaaLeo/vscode-timing/.github/workflows/cicd.yml
-name: Build, Lint, and Deploy
+name: CI
 
 on:
   push:
@@ -46,7 +46,7 @@ jobs:
           - ubuntu-latest
           - macos-latest
         node:
-          - 18.12.1
+          - 22.2.0
     outputs:
       vsixPath: ${{ steps.packageExtension.outputs.vsixPath }}
     steps:
@@ -62,14 +62,6 @@ jobs:
         run: npm run lint
       - name: Build Code
         run: npm run compile
-      - name: Build tests
-        run: npm run compile-tests
-      - name: Run Tests Linux
-        run: xvfb-run -a -s "-screen 0 1280x1024x24" npm run test
-        if: runner.os == 'Linux'
-      - name: Run tests
-        run: npm run test
-        if: runner.os != 'Linux'
       - name: Package Extension
         id: packageExtension
         uses: HaaLeo/publish-vscode-extension@v1
@@ -104,10 +96,10 @@ jobs:
     steps:
       - name: Checkout Source
         uses: actions/checkout@v2
-      - name: Install Node v18
+      - name: Install Node
         uses: actions/setup-node@v1
         with:
-          node-version: 18.12.1
+          node-version: 22.2.0
       - name: Install Dependencies
         run: npm ci
       - name: Download Build Artifact

@@ -28,7 +28,6 @@ We therefore call only once the compiler and then we parse the output
 to get the information we need. For "goto" and "doc" feature, we have a
 map that associates a file path to the corresponding information for that file.
 */
-
 export async function activate(context: vscode.ExtensionContext) {
   if (!config.enableSemanticSyntax.get()) return;
   try {
@@ -37,21 +36,33 @@ export async function activate(context: vscode.ExtensionContext) {
       vscode.languages.registerDocumentSemanticTokensProvider(
         { language: 'Juvix', scheme: 'file' },
         semanticTokensProvider,
-        legend
+        legend,
+      );
+    const markdownSemanticTokensProvider = new Highlighter();
+    const markdownHighlighterProvider =
+      vscode.languages.registerDocumentSemanticTokensProvider(
+        { language: 'JuvixMarkdown', scheme: 'file' },
+        markdownSemanticTokensProvider,
+        legend,
       );
     context.subscriptions.push(highlighterProvider);
+    context.subscriptions.push(markdownHighlighterProvider);
     context.subscriptions.push(
       vscode.workspace.onDidChangeConfiguration(e => {
         if (e.affectsConfiguration('juvix-mode.enableSemanticSyntax')) {
-          if (!config.enableSemanticSyntax.get()) highlighterProvider.dispose();
-          else activate(context);
+          if (!config.enableSemanticSyntax.get()) {
+            highlighterProvider.dispose();
+            markdownHighlighterProvider.dispose();
+          } else {
+            activate(context);
+          }
         }
-      })
+      }),
     );
   } catch (error) {
     logger.error(
       'Juvix: Could not register semantic syntax highlighter\n' + error,
-      'highlighting.ts'
+      'highlighting.ts',
     );
   }
 }
@@ -74,25 +85,25 @@ export const legend: vscode.SemanticTokensLegend = (function () {
   ];
 
   tokenTypesLegend.forEach((tokenType, index) =>
-    tokenTypes.set(tokenType, index)
+    tokenTypes.set(tokenType, index),
   );
 
   // not used at the moment
   const tokenModifiersLegend = ['declaration', 'documentation'];
   tokenModifiersLegend.forEach((tokenModifier, index) =>
-    tokenModifiers.set(tokenModifier, index)
+    tokenModifiers.set(tokenModifier, index),
   );
 
   return new vscode.SemanticTokensLegend(
     tokenTypesLegend,
-    tokenModifiersLegend
+    tokenModifiersLegend,
   );
 })();
 
 export class Highlighter implements vscode.DocumentSemanticTokensProvider {
   async provideDocumentSemanticTokens(
     document: vscode.TextDocument,
-    _token: vscode.CancellationToken
+    _token: vscode.CancellationToken,
   ): Promise<vscode.SemanticTokens> {
     const filePath: string = document.fileName;
     const content: string = document.getText();
@@ -193,7 +204,7 @@ export class Highlighter implements vscode.DocumentSemanticTokensProvider {
           this.numberOfAstralSymbols(
             contentLines[l],
             newStartCol,
-            newStartCol + lineLength
+            newStartCol + lineLength,
           );
 
         builder.push(l, newStartCol, realLength, token, 0);
@@ -205,7 +216,7 @@ export class Highlighter implements vscode.DocumentSemanticTokensProvider {
   private numberOfAstralSymbols(
     str: string,
     start: number,
-    end: number
+    end: number,
   ): number {
     // Regular expression to match astral symbols
     const regexAstralSymbols = /[\uD800-\uDBFF][\uDC00-\uDFFF]/g;
@@ -243,7 +254,7 @@ export class Highlighter implements vscode.DocumentSemanticTokensProvider {
   }
 
   private getFaceProperty(
-    entry: ((string | number)[] | string)[]
+    entry: ((string | number)[] | string)[],
   ): FaceProperty {
     const intervalInfo = entry[0];
     const rawInterval: RawInterval = {

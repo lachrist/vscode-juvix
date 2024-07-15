@@ -24,7 +24,7 @@ export async function juvixIsNotInstalled() {
     Alternatively, we can install it for you now.
     Would you like to proceed with the installation?`,
     'Install',
-    'Show recommendations'
+    'Show recommendations',
   );
 
   if (result === 'Install') {
@@ -32,7 +32,7 @@ export async function juvixIsNotInstalled() {
   } else {
     logger.warn(
       'Check the binary path in the configuration page or ' +
-        `visit ${linkDocVersion} for instructions.`
+        `visit ${linkDocVersion} for instructions.`,
     );
   }
 }
@@ -49,13 +49,17 @@ export function checkJuvixBinary(): string | undefined {
     return ls.stdout.toString().replace('version ', 'v').split('\n')[0];
   } catch (e) {
     logger.debug('Juvix is not installed.', 'checkJuvixBinary');
+    return undefined; // Add a return statement here
   }
 }
 
 export function getInstalledNumericVersion(): string | undefined {
   const ls = spawnSync(config.getJuvixExec(), ['--numeric-version']);
   if (ls.status == 0) return ls.stdout.toString().split('\n')[0];
-  else juvixIsNotInstalled();
+  else {
+    juvixIsNotInstalled();
+    return undefined;
+  }
 }
 
 export const supportedVersion: string = fs
@@ -75,7 +79,7 @@ export async function checkForUpgrade(version: string) {
       .showWarningMessage(
         `${version} is not supported. Do you want to upgrade to the latest version?`,
         'Upgrade',
-        'No'
+        'No',
       )
       .then(result => {
         if (result === 'Upgrade') {
@@ -83,8 +87,9 @@ export async function checkForUpgrade(version: string) {
           return getInstalledNumericVersion();
         } else {
           logger.warn(
-            'Please upgrade Juvix to the latest version. Visit https://docs.juvix.org/latest/howto/installing/ for instructions.'
+            'Please upgrade Juvix to the latest version. Visit https://docs.juvix.org/latest/howto/installing/ for instructions.',
           );
+          return undefined; // Add a return statement here
         }
       });
   }

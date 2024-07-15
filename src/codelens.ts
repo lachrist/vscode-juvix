@@ -4,32 +4,45 @@
 import * as vscode from 'vscode';
 import * as statusbar from './statusbar';
 import { getModuleName } from './module';
-import { isJuvixFile } from './utils/base';
+import {
+  isJuvixFile,
+  isJuvixMarkdownFile,
+  isPureJuvixFile,
+} from './utils/base';
 
 /**
  * CodelensProvider
  */
 
+
 export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(
     vscode.languages.registerCodeLensProvider(
       { scheme: 'file', language: 'Juvix' },
-      new CodelensProvider()
-    )
+      new JuvixCodelensProvider(),
+    ),
   );
+
+  context.subscriptions.push(
+    vscode.languages.registerCodeLensProvider(
+      { scheme: 'file', language: 'JuvixMarkdown' },
+      new JuvixCodelensProvider(),
+    ),
+  );
+
   context.subscriptions.push(
     vscode.commands.registerCommand('juvix-mode.enableCodeLens', () => {
       vscode.workspace
         .getConfiguration('juvix-mode')
         .update('enableCodeLens', true, true);
-    })
+    }),
   );
   context.subscriptions.push(
     vscode.commands.registerCommand('juvix-mode.disableCodeLens', () => {
       vscode.workspace
         .getConfiguration('juvix-mode')
         .update('enableCodeLens', false, true);
-    })
+    }),
   );
 
   context.subscriptions.push(
@@ -43,12 +56,12 @@ export function activate(context: vscode.ExtensionContext) {
             editBuilder.insert(position, args.text);
           });
         }
-      }
-    )
+      },
+    ),
   );
 }
 
-export class CodelensProvider implements vscode.CodeLensProvider {
+export class JuvixCodelensProvider implements vscode.CodeLensProvider {
   private codeLenses: vscode.CodeLens[] = [];
   private _onDidChangeCodeLenses: vscode.EventEmitter<void> =
     new vscode.EventEmitter<void>();
@@ -63,7 +76,7 @@ export class CodelensProvider implements vscode.CodeLensProvider {
 
   public provideCodeLenses(
     document: vscode.TextDocument,
-    _token: vscode.CancellationToken
+    _token: vscode.CancellationToken,
   ): vscode.CodeLens[] | Thenable<vscode.CodeLens[]> {
     if (!isJuvixFile(document)) {
       return [];
@@ -84,38 +97,59 @@ export class CodelensProvider implements vscode.CodeLensProvider {
       });
       this.codeLenses.push(juvixVersionCodeLenses);
 
-      /*
-            Add a code lenses that checks if the document is empty.
-            If it is, it suggests to insert the module header
-            relative to juvixRoot.
-            The content inserted by the code lenses should be:
-            "module <module name>;"
-            where <module name> document filepath relative to juvixRoot
-            and the slashes are replaced by dots.
-            */
+      if(document.fileName.endsWith('Package.juvix') && text.length === 0){
+const packageText: string = `module Package;
 
-      const regex = /module\s+([\w.]+);/;
-      const match = text.match(regex);
+import PackageDescription.V2 open;
+
+package : Package :=
+  defaultPackage
+    { name := "MyPackage"
+    ; version := mkVersion 0 1 0
+    ; dependencies := []
+    };
+`;
+        const packageCodeLenses = new vscode.CodeLens(firstLineRange, {
+          title: 'Insert Package module template',
+          command: 'juvix-mode.aux.prependText',
+          arguments: [
+            {
+              text: packageText,
+            },
+          ],
+        });
+        this.codeLenses = [packageCodeLenses, ...this.codeLenses];
+        return this.codeLenses;
+      }
+
       const moduleName: string | undefined = getModuleName(document);
-      if (moduleName && (text.length === 0 || match === null)) {
-        const moduleTopHeader = `module ${moduleName};`;
+      const moduleDeclaration = `module ${moduleName};`;
+
+      let insertPosition: vscode.Position = new vscode.Position(0, 0);
+      let juvixBlockText: string = '';
+
+      if (moduleName && text.length === 0) {
+
+        if (isPureJuvixFile(document)) {
+          juvixBlockText = `${moduleDeclaration}\n\n`;
+        } else if (isJuvixMarkdownFile(document)) {
+          juvixBlockText = `\`\`\`juvix\n${moduleDeclaration}\n\`\`\`\n\n`;
+        }
+
         const insertModuleCodeLenses = new vscode.CodeLens(
-          new vscode.Range(
-            new vscode.Position(0, 0),
-            new vscode.Position(0, 0)
-          ),
+          new vscode.Range(insertPosition, insertPosition),
           {
-            title: `Insert "${moduleTopHeader}"`,
+            title: `Insert "${moduleDeclaration}"`,
             command: 'juvix-mode.aux.prependText',
             arguments: [
               {
-                text: `${moduleTopHeader}\n\n`,
+                text: juvixBlockText,
               },
             ],
-          }
+          },
         );
 
-        this.codeLenses = [insertModuleCodeLenses].concat(this.codeLenses);
+        this.codeLenses = [insertModuleCodeLenses, ...this.codeLenses];
       }
 
       return this.codeLenses;
