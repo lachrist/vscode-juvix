@@ -68,7 +68,7 @@ Use <kbd>Ctrl</kbd>+<kbd>P</kbd> to open the Command Palette and type `Juvix`. A
 | :-------- | :------------------------------------------: |
 | typecheck | <kbd>Shift</kbd>+<kbd>Alt</kbd>+<kbd>T</kbd> |
 | compile   | <kbd>Shift</kbd>+<kbd>Alt</kbd>+<kbd>C</kbd> |
-| run       | <kbd>Shift</kbd>+<kbd>Alt</kbd>+<kbd>X</kbd> |
+| eval      | <kbd>Shift</kbd>+<kbd>Alt</kbd>+<kbd>X</kbd> |
 | doctor    | <kbd>Shift</kbd>+<kbd>Alt</kbd>+<kbd>D</kbd> |
 
 ## Configuration
@@ -105,7 +105,6 @@ Make sure to reload the window if prompted for some changes to take effect.
 - Intermediate Representations (IR) support:
   - **JuvixCore**: syntax highlighting, REPL, execution.
   - **JuvixAsm**: syntax highlighting.
-  - **JuvixGeb**: syntax highlighting, REPL, execution.
 - **User Configuration Options**, some requiring a window reload.
 - **Unicode input support** via `czhang03.unicode-math-input` extension.
 

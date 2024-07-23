@@ -116,19 +116,6 @@ export class JuvixConfig {
     return compilationFlags;
   }
 
-  // Geb configuration methods
-  public gebBinaryName(): string {
-    return this.workspaceConfig.get('gebName', 'geb.image');
-  }
-
-  public gebBinaryPath(): string {
-    return this.workspaceConfig.get('gebBinPath', '');
-  }
-
-  public getGebExec(): string {
-    return path.join(this.gebBinaryPath(), this.gebBinaryName());
-  }
-
   // Other configuration methods
   public noColors(): boolean {
     return this.workspaceConfig.get('noColors', false);
@@ -171,7 +158,7 @@ export class JuvixConfig {
   }
 
   public getGlobalFlags(): string {
-    let flags: string[] = [];
+    const flags: string[] = [];
     if (this.noColors()) flags.push('--no-colors');
     if (this.showNameIds()) flags.push('--show-name-ids');
     if (this.onlyErrors()) flags.push('--only-errors');
@@ -257,4 +244,4 @@ export interface TaggedList {
   [abbrev: string]: string;
 }
 
-export let config = new JuvixConfig();
+export const config = new JuvixConfig();
