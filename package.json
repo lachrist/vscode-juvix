@@ -1,6 +1,6 @@
 {
   "name": "juvix-mode",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "license": "GPL-3.0",
   "description": "Juvix Mode for VSCode",
   "displayName": "Juvix",
@@ -442,23 +442,17 @@
         "owner": "juvixerror",
         "source": "Juvix Error",
         "fileLocation": "autoDetect",
-        "pattern": [
-          {
-            "kind": "location",
-            "regexp": "^(.+):(\\d+)(?:-(\\d+))?:(\\d+)-(\\d+): (\\w+).*",
-            "file": 1,
-            "line": 2,
-            "endLine": 3,
-            "column": 4,
-            "endColumn": 5,
-            "severity": 6
-          },
-          {
-            "regexp": "(.*)",
-            "message": 1,
-            "loop": true
-          }
-        ]
+        "pattern": {
+          "kind": "location",
+          "regexp": "^(.+):(\\d+)(?:-(\\d+))?:(\\d+)-(\\d+):\\s+(\\w+):(.*)$",
+          "file": 1,
+          "line": 2,
+          "endLine": 3,
+          "column": 4,
+          "endColumn": 5,
+          "severity": 6,
+          "message": 7
+        }
       }
     ],
     "commands": [
@@ -817,6 +811,11 @@
           "type": "boolean",
           "default": true,
           "description": "Disable ANSI formatting."
+        },
+        "juvix-mode.vscodeErrors": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable VSCode compatible error formatting."
         },
         "juvix-mode.showNameIds": {
           "type": "boolean",
