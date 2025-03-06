@@ -1,7 +1,3 @@
-/*---------------------------------------------------------
- * Copyright (C) Microsoft Corporation. All rights reserved.
- *--------------------------------------------------------*/
-
 import * as vscode from 'vscode';
 import * as user from './config';
 import { logger } from './utils/debug';
@@ -217,7 +213,7 @@ export async function JuvixTask(
   const input = args.join(' ').trim();
   const config = new user.JuvixConfig();
   const JuvixExec = [config.getJuvixExec(), config.getGlobalFlags()].join(' ');
-  let exec: vscode.ProcessExecution | vscode.ShellExecution | undefined;
+  let exec: vscode.ShellExecution;
   const fl = args.slice(1).join(' ').trim();
   const target = config.compilationTarget();
   switch (name) {
@@ -232,7 +228,7 @@ export async function JuvixTask(
       exec = new vscode.ShellExecution(JuvixExec + ` dev core eval ${fl}`);
       break;
     case 'update-dependencies':
-      exec = new vscode.ShellExecution(JuvixExec + `dependencies update`);
+      exec = new vscode.ShellExecution(JuvixExec + ` dependencies update`);
       break;
     case 'typecheck-silent':
       exec = new vscode.ShellExecution(JuvixExec + ` typecheck ${fl}`);

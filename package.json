@@ -1,6 +1,6 @@
 {
   "name": "juvix-mode",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "license": "GPL-3.0",
   "description": "Juvix Mode for VSCode",
   "displayName": "Juvix",
@@ -31,12 +31,8 @@
     "workspace"
   ],
   "activationEvents": [
-    "onStartupFinished",
-    "onLanguage:Juvix",
     "onLanguage:JuvixAsm",
-    "onLanguage:JuvixCore",
-    "onLanguage:JuvixMarkdown",
-    "onCommand:juvix-mode.installJuvixBinary"
+    "onLanguage:JuvixCore"
   ],
   "extensionPack": [
     "czhang03.unicode-math-input",
@@ -444,7 +440,7 @@
         "fileLocation": "autoDetect",
         "pattern": {
           "kind": "location",
-          "regexp": "^(.+):(\\d+)(?:-(\\d+))?:(\\d+)-(\\d+):\\s+(\\w+):(.*)$",
+          "regexp": "^(.+):(\\d+)(?:-(\\d+))?:(\\d+)(?:-(\\d+))?:\\s+(\\w+):(.*)$",
           "file": 1,
           "line": 2,
           "endLine": 3,
@@ -856,7 +852,6 @@
     }
   },
   "dependencies": {
-    "@vscode/vsce": "^2.15.0",
     "async-mutex": "^0.5.0",
     "compare-versions": "^6.1.0",
     "eslint": "^8.57.0",
@@ -874,7 +869,7 @@
     "@types/node": "^20.14.9",
     "@types/vscode": "^1.74.0",
     "@vscode/test-electron": "^2.4.0",
-    "@vscode/vsce": "^2.29.0",
+    "@vscode/vsce": "^3.2.2",
     "eslint": "^8.57.0",
     "glob": "^10.4.2",
     "globals": "^15.8.0",

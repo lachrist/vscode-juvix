@@ -1,10 +1,25 @@
 import * as vscode from 'vscode';
 import * as user from './config';
 import { isJuvixFile } from './utils/base';
-import { logger } from './utils/debug';
 
 export async function activate(context: vscode.ExtensionContext, typecheckTask: vscode.Task) {
   const config = new user.JuvixConfig();
+
+  if (config.typecheckOn() === 'none') return;
+
+  const activeEditor = vscode.window.activeTextEditor;
+  if (activeEditor && isJuvixFile(activeEditor.document)) {
+    await vscode.tasks.executeTask(typecheckTask);
+  }
+
+  context.subscriptions.push(
+    vscode.window.onDidChangeActiveTextEditor(async editor => {
+      if (editor) {
+        if (isJuvixFile(editor.document))
+          await vscode.tasks.executeTask(typecheckTask);
+      }
+    }),
+  );
 
   switch (config.typecheckOn()) {
     case 'change':

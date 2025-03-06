@@ -1,7 +1,3 @@
-/*---------------------------------------------------------
- * Copyright (C) Microsoft Corporation. All rights reserved.
- *--------------------------------------------------------*/
-
 import * as def from './definitions';
 import * as hover from './hover';
 import * as vscode from 'vscode';
@@ -24,7 +20,7 @@ The Juvix compiler outputs a JSON file with the following structure:
   "doc": ..  // for hover info
 }.
 
-We therefore call only once the compiler and then we parse the output
+We therefore call the compiler only once and then we parse the output
 to get the information we need. For "goto" and "doc" feature, we have a
 map that associates a file path to the corresponding information for that file.
 */
